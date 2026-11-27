@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tally Sales Sync - Sales Booking Portal</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Decorative background elements for Glassmorphism -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- ==================================================== -->
+  <!-- LOGIN PAGE -->
+  <!-- ==================================================== -->
+  <div id="login-container" class="page-container active">
+    <div class="login-card">
+      <div class="brand-header">
+        <div class="brand-logo">TS</div>
+        <h1>Tally Sales Sync</h1>
+        <p>Sales Entry Gateway</p>
+      </div>
+      
+      <form id="login-form" autocomplete="on">
+        <div class="input-group">
+          <label for="login-username">Salesman Username</label>
+          <input type="text" id="login-username" name="username" placeholder="e.g. salesman1" required autocomplete="username" inputmode="text">
+        </div>
+        
+        <div class="input-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" name="password" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        
+        <div id="login-error" class="error-msg hidden">Invalid username or password.</div>
+        
+        <button type="submit" id="btn-login" class="btn btn-primary btn-block">
+          <span>Log In Securely</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- MAIN APP PANEL (DASHBOARD & VOUCHER ENTRY) -->
+  <!-- ==================================================== -->
+  <div id="app-container" class="page-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="logo-mini">TS</span>
+        <div>
+          <h2>Tally Sales Sync</h2>
+          <span class="sub-brand">Tally Prime Portal</span>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="badge badge-success" id="connection-status">Mock Tally Server Active</span>
+        <span class="user-greeting" id="user-greeting">Welcome, Salesman</span>
+        <button id="btn-logout" class="btn btn-secondary btn-sm">Log Out</button>
+      </div>
+    </header>
+
+    <div class="app-layout">
+      <!-- LEFT COLUMN: SALES ENTRY FORM -->
+      <section class="card entry-card">
+        <h3 class="card-title">Book Sales Entry</h3>
+        
+        <div class="form-row">
+          <div class="input-group full-width">
+            <label for="party-search">Select Customer (Party)</label>
+            <div class="autocomplete-wrapper">
+              <input type="text" id="party-search" placeholder="Type customer name to search..." autocomplete="off">
+              <div id="party-results" class="autocomplete-results hidden"></div>
+            </div>
+            <!-- Customer Info Box -->
+            <div id="party-info-box" class="info-box hidden">
+              <span id="info-party-name" class="info-title">Customer Name</span>
+              <div class="info-grid">
+                <div><span>GSTIN:</span> <strong id="info-party-gstin">N/A</strong></div>
+                <div><span>State:</span> <strong id="info-party-state">Tamil Nadu</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h4 class="section-subtitle">Add Stock Items</h4>
+        <div class="form-row item-selection-row">
+          <div class="input-group item-search-group">
+            <label for="item-search">Search Item</label>
+            <div class="autocomplete-wrapper">
+              <input type="text" id="item-search" placeholder="Type item name..." autocomplete="off">
+              <div id="item-results" class="autocomplete-results hidden"></div>
+            </div>
+          </div>
+          
+          <div class="input-group qty-group">
+            <label for="item-qty">Quantity</label>
+            <input type="number" id="item-qty" placeholder="0" min="0.01" step="any" inputmode="decimal">
+            <span class="unit-label" id="unit-label">UNIT</span>
+          </div>
+
+          <div class="input-group rate-group">
+            <label for="item-rate">Rate (₹)</label>
+            <input type="number" id="item-rate" placeholder="0.00" min="0" step="any" inputmode="decimal">
+          </div>
+
+          <div class="add-button-group">
+            <button id="btn-add-item" type="button" class="btn btn-accent btn-circle" title="Add Item">
+              <span>+</span>
+            </button>
+          </div>
+        </div>
+        
+        <div id="item-error" class="error-msg hidden">Please select a valid item and enter quantity.</div>
+
+        <!-- Selected Items Grid/List -->
+        <div class="cart-items-wrapper">
+          <h5>Voucher Items</h5>
+          <table class="data-table" id="cart-table">
+            <thead>
+              <tr>
+                <th>Stock Item</th>
+                <th>HSN</th>
+                <th>Qty</th>
+                <th>Rate (₹)</th>
+                <th>Total (₹)</th>
+                <th>Tax %</th>
+                <th style="width: 50px;"></th>
+              </tr>
+            </thead>
+            <tbody id="cart-tbody">
+              <tr class="empty-row">
+                <td colspan="7">No items added to voucher yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: BILL PREVIEW & SUMMARY -->
+      <section class="card summary-card">
+        <h3 class="card-title">Voucher Summary</h3>
+        
+        <div class="bill-details">
+          <div class="detail-row">
+            <span>Date:</span>
+            <input type="date" id="voucher-date">
+          </div>
+          <div class="detail-row">
+            <span>Customer Name:</span>
+            <span id="summary-party-name" class="placeholder-text">None Selected</span>
+          </div>
+          <div class="detail-row">
+            <span>GST Class:</span>
+            <span id="summary-gst-class" class="placeholder-text">N/A</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="tax-summary">
+          <div class="summary-row">
+            <span>Subtotal (Excl. Tax)</span>
+            <span id="summary-subtotal">₹0.00</span>
+          </div>
+          <div class="summary-row cgst-row hidden">
+            <span>CGST</span>
+            <span id="summary-cgst">₹0.00</span>
+          </div>
+          <div class="summary-row sgst-row hidden">
+            <span>SGST</span>
+            <span id="summary-sgst">₹0.00</span>
+          </div>
+          <div class="summary-row igst-row hidden">
+            <span>IGST</span>
+            <span id="summary-igst">₹0.00</span>
+          </div>
+          <div class="summary-row total-row">
+            <span>Grand Total (Incl. Tax)</span>
+            <span id="summary-total">₹0.00</span>
+          </div>
+        </div>
+
+        <button id="btn-submit-voucher" class="btn btn-primary btn-block btn-lg" disabled>
+          <span>Submit for Manager Approval</span>
+        </button>
+      </section>
+    </div>
+
+    <!-- BOTTOM ROW: RECENT BOOKINGS & SYNC DAY BOOK -->
+    <section class="card daybook-card">
+      <div class="daybook-header">
+        <h3 class="card-title">Local Day Book (Tally Sync Log)</h3>
+        <button id="btn-refresh-vouchers" class="btn btn-secondary btn-sm">Refresh List</button>
+      </div>
+
+      <table class="data-table" id="vouchers-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Customer Name</th>
+            <th>Items Summary</th>
+            <th>Subtotal (₹)</th>
+            <th>Total GST (₹)</th>
+            <th>Grand Total (₹)</th>
+            <th>Created By</th>
+            <th>Sync Status</th>
+            <th>Tally Voucher No</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="vouchers-tbody">
+          <tr>
+            <td colspan="10" style="text-align: center;">Loading day book logs...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ADMIN OPTIONS DRAWER/FOOTER -->
+    <footer class="admin-panel hidden" id="admin-panel">
+      <h4>Admin System Settings</h4>
+      <div class="admin-controls">
+        <div class="input-group">
+          <label for="setting-tally-url">Tally Prime Port URL</label>
+          <input type="text" id="setting-tally-url" value="http://localhost:9000">
+        </div>
+        <div class="toggle-group">
+          <input type="checkbox" id="setting-mock-mode" checked>
+          <label for="setting-mock-mode">Enable Simulated/Mock Tally Sync (No Tally connection needed)</label>
+        </div>
+        <button id="btn-save-settings" class="btn btn-accent btn-sm">Save Config</button>
+        <button id="btn-sync-masters" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, var(--accent), var(--primary));">Sync Masters from Tally</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- POPUP DIALOGS -->
+  <dialog id="status-dialog" class="glass-dialog">
+    <div class="dialog-content">
+      <h3 id="dialog-title">Syncing...</h3>
+      <div class="loader-wrapper" id="dialog-loader">
+        <div class="loader"></div>
+      </div>
+      <p id="dialog-message">Posting Sales XML to Tally Prime Server...</p>
+      <button onclick="document.getElementById('status-dialog').close()" class="btn btn-secondary btn-block hidden" id="dialog-close-btn">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Script File -->
+  <script src="app.js"></script>
+</body>
+</html>
